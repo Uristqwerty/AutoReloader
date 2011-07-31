@@ -1,4 +1,4 @@
-package com.bukkit.Uristqwerty.AutoReloader;
+package net.zhuoweizhang.autoreloader;
 
 import java.io.File;
 
@@ -13,10 +13,6 @@ import org.bukkit.Server;
 public class AutoReloader extends JavaPlugin
 {
 	private final AutoReloaderBlockListener blockListener = new AutoReloaderBlockListener(this);
-	public AutoReloader(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader)
-	{
-		super(pluginLoader, instance, desc, folder, plugin, cLoader);
-	}
 	
     public void onEnable()
     {

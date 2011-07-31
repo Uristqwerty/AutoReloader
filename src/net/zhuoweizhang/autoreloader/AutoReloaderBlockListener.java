@@ -1,4 +1,4 @@
-package com.bukkit.Uristqwerty.AutoReloader;
+package net.zhuoweizhang.autoreloader;
 
 import java.util.HashMap;
 import org.bukkit.Material;
@@ -21,9 +21,8 @@ public class AutoReloaderBlockListener extends BlockListener
 		//plugin = instance;
 	}
 	
-	public void onBlockRedstoneChange(BlockFromToEvent fromToEvent)
+	public void onBlockRedstoneChange(BlockRedstoneEvent event)
 	{
-		BlockRedstoneEvent event = (BlockRedstoneEvent) fromToEvent;
 		Block block = event.getBlock();
 		
 		if(block.getType() != Material.REDSTONE_WIRE)
@@ -246,7 +245,7 @@ public class AutoReloaderBlockListener extends BlockListener
 		
 		ItemStack[] stack = inventory.getContents();
 
-		if(stack[0].getAmount() == 0 || stack[0].getType() == Material.AIR)
+		if(stack[0] == null || stack[0].getAmount() == 0 || stack[0].getType() == Material.AIR)
 		{
 			Block b;
 		search:
@@ -263,7 +262,7 @@ public class AutoReloaderBlockListener extends BlockListener
 					
 					for(ItemStack s: contents)
 					{
-						if(s.getAmount() > 0)
+						if(s != null && s.getAmount() > 0)
 						{
 							inventory.setItem(0, s);
 							i.clear(i.first(s));
@@ -274,7 +273,7 @@ public class AutoReloaderBlockListener extends BlockListener
 			}
 		}
 		
-		if(stack[1].getAmount() == 0 || stack[1].getType() == Material.AIR)
+		if(stack[1] == null || stack[1].getAmount() == 0 || stack[1].getType() == Material.AIR)
 		{
 			Block b;
 		search:
@@ -291,7 +290,7 @@ public class AutoReloaderBlockListener extends BlockListener
 					
 					for(ItemStack s: contents)
 					{
-						if(s.getAmount() > 0)
+						if(s != null && s.getAmount() > 0)
 						{
 							inventory.setItem(1, s);
 							i.clear(i.first(s));
@@ -302,7 +301,7 @@ public class AutoReloaderBlockListener extends BlockListener
 			}
 		}
 		
-		if(stack[2].getAmount() != 0)
+		if(stack[2] != null && stack[2].getAmount() != 0)
 		{
 			Block b;
 			for(int j=0; j<8; j++)
