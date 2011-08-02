@@ -110,8 +110,8 @@ public class AutoReloaderBlockListener extends BlockListener
 	
 	private void dispenserUpdate(Block block, boolean powered)
 	{
-		if(!powered || true)//Gave me an error relating to some abstract method or something later
-			return;//within craftbukkit code. Thus, always return, for now.
+		if(!powered) //Apparently, This used to give an error relating to some abstract method or something later
+			return;//within craftbukkit code. When I tested it on Bukkit #1000, it worked fine.
 		
 		Block[] neighbours = new Block[8];
 		Block temp;
@@ -182,7 +182,7 @@ public class AutoReloaderBlockListener extends BlockListener
 						
 						for(ItemStack s: contents)
 						{
-							if(s.getAmount() > 0)
+							if(s != null && s.getAmount() > 0)
 							{
 								inventory.setItem(index, s);
 								i.clear(i.first(s));
