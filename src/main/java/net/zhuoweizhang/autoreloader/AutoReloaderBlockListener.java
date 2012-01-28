@@ -6,13 +6,14 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.Furnace;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockListener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-public class AutoReloaderBlockListener extends BlockListener
+public class AutoReloaderBlockListener implements Listener
 {
 	//private final AutoReloader plugin;
 	
@@ -20,7 +21,8 @@ public class AutoReloaderBlockListener extends BlockListener
 	{
 		//plugin = instance;
 	}
-	
+
+	@EventHandler(priority=EventPriority.MONITOR)
 	public void onBlockRedstoneChange(BlockRedstoneEvent event)
 	{
 		Block block = event.getBlock();

@@ -17,7 +17,7 @@ public class AutoReloader extends JavaPlugin
     public void onEnable()
     {
         PluginManager pluginManager = getServer().getPluginManager();
-        pluginManager.registerEvent(Event.Type.REDSTONE_CHANGE, blockListener,  Priority.Monitor, this);
+        pluginManager.registerEvents(blockListener, this);
         
         PluginDescriptionFile pdfFile = this.getDescription();
         System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " enabled." );
