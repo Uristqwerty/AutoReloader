@@ -3,6 +3,7 @@ package net.zhuoweizhang.autoreloader;
 import java.util.HashMap;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.Furnace;
@@ -57,10 +58,13 @@ public class AutoReloaderBlockListener implements Listener
 		Block above = block.getRelative(0, 1, 0);
 		Material type = above.getType();
 		
-		if(type == Material.DISPENSER)
+		if(type == Material.DISPENSER) {
 			dispenserUpdate(above, powered);
-		else if(type == Material.FURNACE || type == Material.BURNING_FURNACE)
+		} else if(type == Material.FURNACE || type == Material.BURNING_FURNACE) {
 			furnaceUpdate(above, powered);
+		} else if (type == Material.BREWING_STAND) {
+			brewingStandUpdate(above, powered);
+		}
 	}
 	
 	private int getRedstoneDirections(Block block)
@@ -325,6 +329,145 @@ public class AutoReloaderBlockListener implements Listener
 				inventory.setItem(2, stack[2]);
 			else
 				inventory.clear(2);
+		}
+	}
+
+	private void brewingStandUpdate(Block block, boolean powered)
+	{
+		if(!powered)
+			return;
+
+		BrewingStand brewingStand = (BrewingStand) block.getState();
+		if (brewingStand.getBrewingTime() > 0) {
+			return;
+		}
+		
+		Block[] neighbours = new Block[8];
+		Block temp;
+		
+		temp = block.getRelative(1, 0, 0);
+		if(temp.getType() == Material.CHEST)
+		{
+			neighbours[0] = temp;
+			temp = DoubleChest(temp);
+			if(temp != null)
+				neighbours[1] = temp;
+		}
+		
+		temp = block.getRelative(-1, 0, 0);
+		if(temp.getType() == Material.CHEST)
+		{
+			neighbours[2] = temp;
+			temp = DoubleChest(temp);
+			if(temp != null)
+				neighbours[3] = temp;
+		}
+		
+		temp = block.getRelative(0, 0, 1);
+		if(temp.getType() == Material.CHEST)
+		{
+			neighbours[4] = temp;
+			temp = DoubleChest(temp);
+			if(temp != null)
+				neighbours[5] = temp;
+		}
+		
+		temp = block.getRelative(0, 0, -1);
+		if(temp.getType() == Material.CHEST)
+		{
+			neighbours[6] = temp;
+			temp = DoubleChest(temp);
+			if(temp != null)
+				neighbours[7] = temp;
+		}
+		
+		Inventory inventory = brewingStand.getInventory();
+		
+		ItemStack[] stack = inventory.getContents();
+
+		//Ingredient: Copied from furnaceUpdate.
+		if(stack[3] == null || stack[3].getAmount() == 0 || stack[3].getType() == Material.AIR)
+		{
+			Block b;
+		search:
+			for(int j=0; j<8; j++)
+			{
+				b = neighbours[j];
+				if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == Material.OBSIDIAN)
+				{
+					Inventory i = ((Chest) b.getState()).getInventory();
+					if(i == null)
+						continue;
+					
+					ItemStack[] contents = i.getContents();
+					
+					for(ItemStack s: contents)
+					{
+						if(s != null && s.getAmount() > 0)
+						{
+							inventory.setItem(3, s);
+							i.clear(i.first(s));
+							break search;
+						}
+					}
+				}
+			}
+		}
+
+		for(int index = 0; index<inventory.getSize() - 1; index++) //Other 3 slots. Copied from dispenserUpdate.
+		{
+			//First remove the existing potion if any. Copied from furnaceUpdate.
+			Block chestOut;
+
+			for(int j=0; j<8; j++)
+			{
+				chestOut = neighbours[j];
+				if(stack[index] != null && chestOut != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == Material.GOLD_BLOCK)
+				{
+					HashMap<Integer, ItemStack> h = ((Chest) chestOut.getState()).getInventory().addItem(stack[index]);
+					if(!h.isEmpty())
+						stack[index] = h.get(0);
+					else
+					{
+						stack[index] = null;
+						break;
+					}
+				}
+			}
+			if(stack[index] != null && stack[index].getAmount() > 0) {
+				inventory.setItem(index, stack[index]);
+			} else {
+				inventory.clear(index);
+			}
+
+			//Then pull a new stack of potions from the input box. Copied from dispenserUpdate.
+			if(stack[index] == null || stack[index].getAmount() == 0 || stack[index].getType() == Material.AIR)
+			{
+				Block b;
+			search:
+				for(int j=0; j<8; j++)
+				{
+					b = neighbours[j];
+					if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == Material.LAPIS_BLOCK)
+					{
+						Inventory i = ((Chest) b.getState()).getInventory();
+						if(i == null)
+							continue;
+						
+						ItemStack[] contents = i.getContents();
+						
+						for(ItemStack s: contents)
+						{
+							if(s != null && s.getAmount() > 0 && s.getType() == Material.POTION)
+							{
+								inventory.setItem(index, s);
+								i.clear(i.first(s));
+								break search;
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 	
