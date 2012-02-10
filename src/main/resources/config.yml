@@ -1,0 +1,9 @@
+material:
+    container: DIAMOND_BLOCK
+    input: LAPIS_BLOCK
+    output: GOLD_BLOCK
+    fuel: OBSIDIAN
+enabled:
+    furnace: true
+    dispenser: true
+    brewing-stand: true

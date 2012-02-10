@@ -15,11 +15,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class AutoReloaderBlockListener implements Listener {
-	//private final AutoReloader plugin;
+	private final AutoReloader plugin;
 
 	public AutoReloaderBlockListener(final AutoReloader instance)
 	{
-		//plugin = instance;
+		plugin = instance;
 	}
 
 	@EventHandler(priority=EventPriority.MONITOR)
@@ -51,17 +51,17 @@ public class AutoReloaderBlockListener implements Listener {
 
 	private void updateBlock(Block block, boolean powered)
 	{
-		if(block.getType() != Material.DIAMOND_BLOCK)
+		if(block.getType() != plugin.containerMaterial)
 			return;
 
 		Block above = block.getRelative(0, 1, 0);
 		Material type = above.getType();
 
-		if(type == Material.DISPENSER) {
+		if(type == Material.DISPENSER && plugin.dispenserEnabled) {
 			dispenserUpdate(above, powered);
-		} else if(type == Material.FURNACE || type == Material.BURNING_FURNACE) {
+		} else if((type == Material.FURNACE || type == Material.BURNING_FURNACE) && plugin.furnaceEnabled) {
 			furnaceUpdate(above, powered);
-		} else if (type == Material.BREWING_STAND) {
+		} else if (type == Material.BREWING_STAND && plugin.brewingStandEnabled) {
 			brewingStandUpdate(above, powered);
 		}
 	}
@@ -177,7 +177,7 @@ public class AutoReloaderBlockListener implements Listener {
 				for(int j=0; j<8; j++)
 				{
 					b = neighbours[j];
-					if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == Material.LAPIS_BLOCK)
+					if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == plugin.inputMaterial)
 					{
 						Inventory i = ((Chest) b.getState()).getInventory();
 						if(i == null)
@@ -257,7 +257,7 @@ public class AutoReloaderBlockListener implements Listener {
 			for(int j=0; j<8; j++)
 			{
 				b = neighbours[j];
-				if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == Material.LAPIS_BLOCK)
+				if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == plugin.inputMaterial)
 				{
 					Inventory i = ((Chest) b.getState()).getInventory();
 					if(i == null)
@@ -285,7 +285,7 @@ public class AutoReloaderBlockListener implements Listener {
 			for(int j=0; j<8; j++)
 			{
 				b = neighbours[j];
-				if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == Material.OBSIDIAN)
+				if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == plugin.fuelMaterial)
 				{
 					Inventory i = ((Chest) b.getState()).getInventory();
 					if(i == null)
@@ -312,7 +312,7 @@ public class AutoReloaderBlockListener implements Listener {
 			for(int j=0; j<8; j++)
 			{
 				b = neighbours[j];
-				if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == Material.GOLD_BLOCK)
+				if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == plugin.outputMaterial)
 				{
 					HashMap<Integer, ItemStack> h = ((Chest) b.getState()).getInventory().addItem(stack[2]);
 					if(!h.isEmpty())
@@ -392,7 +392,7 @@ public class AutoReloaderBlockListener implements Listener {
 			for(int j=0; j<8; j++)
 			{
 				b = neighbours[j];
-				if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == Material.OBSIDIAN)
+				if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == plugin.fuelMaterial)
 				{
 					Inventory i = ((Chest) b.getState()).getInventory();
 					if(i == null)
@@ -421,7 +421,7 @@ public class AutoReloaderBlockListener implements Listener {
 			for(int j=0; j<8; j++)
 			{
 				chestOut = neighbours[j];
-				if(stack[index] != null && chestOut != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == Material.GOLD_BLOCK)
+				if(stack[index] != null && chestOut != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == plugin.outputMaterial)
 				{
 					HashMap<Integer, ItemStack> h = ((Chest) chestOut.getState()).getInventory().addItem(stack[index]);
 					if(!h.isEmpty())
@@ -447,7 +447,7 @@ public class AutoReloaderBlockListener implements Listener {
 				for(int j=0; j<8; j++)
 				{
 					b = neighbours[j];
-					if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == Material.LAPIS_BLOCK)
+					if(b != null && neighbours[j & ~1] != null && neighbours[j & ~1].getRelative(0, -1, 0).getType() == plugin.inputMaterial)
 					{
 						Inventory i = ((Chest) b.getState()).getInventory();
 						if(i == null)
