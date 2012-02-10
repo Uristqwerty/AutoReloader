@@ -14,10 +14,9 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-public class AutoReloaderBlockListener implements Listener
-{
+public class AutoReloaderBlockListener implements Listener {
 	//private final AutoReloader plugin;
-	
+
 	public AutoReloaderBlockListener(final AutoReloader instance)
 	{
 		//plugin = instance;
@@ -27,37 +26,37 @@ public class AutoReloaderBlockListener implements Listener
 	public void onBlockRedstoneChange(BlockRedstoneEvent event)
 	{
 		Block block = event.getBlock();
-		
+
 		if(block.getType() != Material.REDSTONE_WIRE)
 			return;
-		
+
 		int directions = getRedstoneDirections(block);
 		boolean powered = event.getNewCurrent() > 0;
-		
+
 		if((directions & 1) != 0)
 			updateBlock(block.getRelative(1, 0, 0), powered);
-		
+
 		if((directions & 2) != 0)
 			updateBlock(block.getRelative(-1, 0, 0), powered);
-		
+
 		if((directions & 4) != 0)
 			updateBlock(block.getRelative(0, 0, 1), powered);
-		
+
 		if((directions & 8) != 0)
 			updateBlock(block.getRelative(0, 0, -1), powered);
-		
+
 		if((directions & 16) != 0)
 			updateBlock(block.getRelative(0, 1, 0), powered);
 	}
-	
+
 	private void updateBlock(Block block, boolean powered)
 	{
 		if(block.getType() != Material.DIAMOND_BLOCK)
 			return;
-		
+
 		Block above = block.getRelative(0, 1, 0);
 		Material type = above.getType();
-		
+
 		if(type == Material.DISPENSER) {
 			dispenserUpdate(above, powered);
 		} else if(type == Material.FURNACE || type == Material.BURNING_FURNACE) {
@@ -66,13 +65,13 @@ public class AutoReloaderBlockListener implements Listener
 			brewingStandUpdate(above, powered);
 		}
 	}
-	
+
 	private int getRedstoneDirections(Block block)
 	{
 		int directions = 0;
-		
+
 		boolean above = block.getRelative(0, 1, 0).getType() == Material.AIR;
-		
+
 		if(willWireConnect(block.getRelative(1, 0, 0), above))
 			directions |= 1;
 		if(willWireConnect(block.getRelative(-1, 0, 0), above))
@@ -81,17 +80,17 @@ public class AutoReloaderBlockListener implements Listener
 			directions |= 4;
 		if(willWireConnect(block.getRelative(0, 0, -1), above))
 			directions |= 8;
-		
+
 		if(directions == 1 || directions == 2)
 			directions = 3;
 		else if(directions == 4 || directions == 8)
 			directions = 12;
 		else if(directions == 0)
 			directions = 15;
-		
+
 		return directions | (above?0:16);
 	}
-	
+
 	private boolean willWireConnect(Block block, boolean above)
 	{
 		Material type = block.getType();
@@ -113,15 +112,15 @@ public class AutoReloaderBlockListener implements Listener
 		}
 		return false;
 	}
-	
+
 	private void dispenserUpdate(Block block, boolean powered)
 	{
 		if(!powered) //Apparently, This used to give an error relating to some abstract method or something later
 			return;//within craftbukkit code. When I tested it on Bukkit #1000, it worked fine.
-		
+
 		Block[] neighbours = new Block[8];
 		Block temp;
-		
+
 		temp = block.getRelative(1, 0, 0);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -130,7 +129,7 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[1] = temp;
 		}
-		
+
 		temp = block.getRelative(-1, 0, 0);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -139,7 +138,7 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[3] = temp;
 		}
-		
+
 		temp = block.getRelative(0, 0, 1);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -148,7 +147,7 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[5] = temp;
 		}
-		
+
 		temp = block.getRelative(0, 0, -1);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -157,18 +156,18 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[7] = temp;
 		}
-		
+
 		Dispenser dispenser = (Dispenser) block.getState();
-		
+
 		Inventory inventory = dispenser.getInventory();
 		if(inventory == null)
 		{
 			System.out.println("AutoReloader: null dispenser inventory.");
 			return;
 		}
-		
+
 		ItemStack[] stack = inventory.getContents();
-		
+
 		for(int index=0; index<inventory.getSize(); index++)
 		{
 			if(stack[index] == null || stack[index].getAmount() == 0 || stack[index].getType() == Material.AIR)
@@ -183,9 +182,9 @@ public class AutoReloaderBlockListener implements Listener
 						Inventory i = ((Chest) b.getState()).getInventory();
 						if(i == null)
 							continue;
-						
+
 						ItemStack[] contents = i.getContents();
-						
+
 						for(ItemStack s: contents)
 						{
 							if(s != null && s.getAmount() > 0)
@@ -200,15 +199,15 @@ public class AutoReloaderBlockListener implements Listener
 			}
 		}
 	}
-	
+
 	private void furnaceUpdate(Block block, boolean powered)
 	{
 		if(!powered)
 			return;
-		
+
 		Block[] neighbours = new Block[8];
 		Block temp;
-		
+
 		temp = block.getRelative(1, 0, 0);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -217,7 +216,7 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[1] = temp;
 		}
-		
+
 		temp = block.getRelative(-1, 0, 0);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -226,7 +225,7 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[3] = temp;
 		}
-		
+
 		temp = block.getRelative(0, 0, 1);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -235,7 +234,7 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[5] = temp;
 		}
-		
+
 		temp = block.getRelative(0, 0, -1);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -244,11 +243,11 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[7] = temp;
 		}
-		
+
 		Furnace furnace = (Furnace) block.getState();
-		
+
 		Inventory inventory = furnace.getInventory();
-		
+
 		ItemStack[] stack = inventory.getContents();
 
 		if(stack[0] == null || stack[0].getAmount() == 0 || stack[0].getType() == Material.AIR)
@@ -263,9 +262,9 @@ public class AutoReloaderBlockListener implements Listener
 					Inventory i = ((Chest) b.getState()).getInventory();
 					if(i == null)
 						continue;
-					
+
 					ItemStack[] contents = i.getContents();
-					
+
 					for(ItemStack s: contents)
 					{
 						if(s != null && s.getAmount() > 0)
@@ -278,7 +277,7 @@ public class AutoReloaderBlockListener implements Listener
 				}
 			}
 		}
-		
+
 		if(stack[1] == null || stack[1].getAmount() == 0 || stack[1].getType() == Material.AIR)
 		{
 			Block b;
@@ -291,9 +290,9 @@ public class AutoReloaderBlockListener implements Listener
 					Inventory i = ((Chest) b.getState()).getInventory();
 					if(i == null)
 						continue;
-					
+
 					ItemStack[] contents = i.getContents();
-					
+
 					for(ItemStack s: contents)
 					{
 						if(s != null && s.getAmount() > 0)
@@ -306,7 +305,7 @@ public class AutoReloaderBlockListener implements Listener
 				}
 			}
 		}
-		
+
 		if(stack[2] != null && stack[2].getAmount() != 0)
 		{
 			Block b;
@@ -341,10 +340,10 @@ public class AutoReloaderBlockListener implements Listener
 		if (brewingStand.getBrewingTime() > 0) {
 			return;
 		}
-		
+
 		Block[] neighbours = new Block[8];
 		Block temp;
-		
+
 		temp = block.getRelative(1, 0, 0);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -353,7 +352,7 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[1] = temp;
 		}
-		
+
 		temp = block.getRelative(-1, 0, 0);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -362,7 +361,7 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[3] = temp;
 		}
-		
+
 		temp = block.getRelative(0, 0, 1);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -371,7 +370,7 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[5] = temp;
 		}
-		
+
 		temp = block.getRelative(0, 0, -1);
 		if(temp.getType() == Material.CHEST)
 		{
@@ -380,9 +379,9 @@ public class AutoReloaderBlockListener implements Listener
 			if(temp != null)
 				neighbours[7] = temp;
 		}
-		
+
 		Inventory inventory = brewingStand.getInventory();
-		
+
 		ItemStack[] stack = inventory.getContents();
 
 		//Ingredient: Copied from furnaceUpdate.
@@ -398,9 +397,9 @@ public class AutoReloaderBlockListener implements Listener
 					Inventory i = ((Chest) b.getState()).getInventory();
 					if(i == null)
 						continue;
-					
+
 					ItemStack[] contents = i.getContents();
-					
+
 					for(ItemStack s: contents)
 					{
 						if(s != null && s.getAmount() > 0)
@@ -453,9 +452,9 @@ public class AutoReloaderBlockListener implements Listener
 						Inventory i = ((Chest) b.getState()).getInventory();
 						if(i == null)
 							continue;
-						
+
 						ItemStack[] contents = i.getContents();
-						
+
 						for(ItemStack s: contents)
 						{
 							if(s != null && s.getAmount() > 0 && s.getType() == Material.POTION)
@@ -470,27 +469,27 @@ public class AutoReloaderBlockListener implements Listener
 			}
 		}
 	}
-	
+
 	Block DoubleChest(Block block)
 	{
 		Block temp;
-		
+
 		temp = block.getRelative(1, 0, 0);
 		if(temp.getType() == Material.CHEST)
 			return temp;
-		
+
 		temp = block.getRelative(-1, 0, 0);
 		if(temp.getType() == Material.CHEST)
 			return temp;
-		
+
 		temp = block.getRelative(0, 0, 1);
 		if(temp.getType() == Material.CHEST)
 			return temp;
-		
+
 		temp = block.getRelative(0, 0, -1);
 		if(temp.getType() == Material.CHEST)
 			return temp;
-		
+
 		return null;
 	}
 }
